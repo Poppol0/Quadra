@@ -1,0 +1,71 @@
+QUADRA DESKTOP - FASE 3
+I conti di casa, in ordine.
+Versione portabile per Windows 10/11, 64 bit
+
+AVVIO CON DOPPIO CLIC
+1. Estrai tutta la cartella Quadra dallo ZIP (per esempio in Documenti).
+2. Apri la cartella estratta e fai doppio clic su Quadra.exe.
+3. Quadra apre una finestra applicazione dedicata con Microsoft Edge.
+   Non occorre installare Python, non serve un account o Internet.
+4. Quando chiudi la finestra di Quadra, l'app termina e libera l'archivio.
+
+REQUISITI
+- Windows 10 o Windows 11, versione 64 bit.
+- Microsoft Edge installato, necessario per la finestra applicazione.
+- L'eseguibile non e firmato digitalmente: Windows puo mostrare un avviso
+  SmartScreen. Verifica il pacchetto e la provenienza prima di eseguirlo.
+- Non e un installer MSI: Quadra.exe funziona direttamente dalla cartella.
+- Non eseguire due copie dell'app con la stessa cartella dati contemporaneamente.
+
+COLLEGAMENTO DESKTOP
+Esegui CREA_COLLEGAMENTO_DESKTOP.bat dopo aver estratto i file.
+Crea un collegamento con l'icona di Quadra, senza richiedere permessi admin.
+Non spostare poi la cartella Quadra senza aggiornare il collegamento.
+
+DOVE SONO I DATI
+Per impostazione predefinita:
+  %LOCALAPPDATA%\Quadra\archivio.json
+  %LOCALAPPDATA%\Quadra\allegati\
+  %LOCALAPPDATA%\Quadra\estratti\
+  %LOCALAPPDATA%\Quadra\backup\
+Questi file non sono inclusi nell'eseguibile e rimangono sul PC anche se
+sostituisci Quadra.exe con una versione successiva.
+La prima installazione contiene solo categorie generiche (76), senza dati personali.
+
+IMPORTARE I DATI GIA USATI IN QUADRA
+Se avevi gia usato la versione di Quadra con la cartella dati separata in
+%LOCALAPPDATA%\Quadra, l'eseguibile usa la stessa cartella automaticamente.
+Non importare nuovamente lo storico se i movimenti sono gia presenti!
+Se i dati sono in un'altra cartella, usa Impostazioni > Ripristina archivio
+completo, selezionando il backup ZIP della vecchia installazione.
+Il backup ZIP e preferibile al solo JSON, perche include foto e PDF.
+Controlla movimenti, conti, saldi, rate e allegati prima di eliminare vecchi backup.
+
+CAMBIO DELLA CARTELLA DATI
+Esegui CONFIGURA_DATI_WINDOWS.bat, scegli un percorso privato e conferma.
+L'operazione NON sposta i dati: fai prima il backup completo ZIP e
+ripristinalo nella nuova cartella. Non scegliere cartelle condivise pubblicamente.
+
+DIAGNOSTICA
+In caso di problemi apri il file:
+  %LOCALAPPDATA%\Quadra\quadra-desktop.log
+Se la finestra non compare, puoi eseguire manualmente da Prompt dei comandi:
+  Quadra_diagnostica.exe --serve-only --port 8765
+poi visitare http://127.0.0.1:8765/ nel browser. Chiudi con Ctrl+C.
+Se il comando di diagnostica restituisce 'archivio gia in uso', chiudi
+prima la precedente sessione di Quadra.
+
+PRIVACY E BACKUP
+Quadra ascolta solo su 127.0.0.1 e conserva i dati nel PC.
+Non e un servizio cloud e NON sincronizza altri dispositivi.
+Tieni aggiornati i backup completi ZIP. L'archivio non e cifrato:
+proteggi il tuo profilo Windows e non condividere i dati familiari.
+
+NOTE TECNICHE / LIMITI DI VERIFICA
+L'eseguibile Quadra.exe contiene un server locale autonomo compilato in Go,
+la stessa interfaccia HTML/CSS/JS e una finestra Edge in modalita app.
+Non utilizza il precedente server Python. Le API, lo schema JSON e il
+formato del backup ZIP restano compatibili con Quadra.
+Il backend e l'interfaccia web sono stati testati; il funzionamento
+specifico del processo Edge su un PC Windows deve essere confermato
+alla prima esecuzione perche il build e stato creato fuori da Windows.

@@ -1,0 +1,458 @@
+[
+  {
+    "id": "base-001",
+    "group": "Casa e utenze",
+    "name": "Affitto",
+    "origin": "base"
+  },
+  {
+    "id": "base-002",
+    "group": "Casa e utenze",
+    "name": "Mutuo casa",
+    "origin": "base"
+  },
+  {
+    "id": "base-003",
+    "group": "Casa e utenze",
+    "name": "Condominio",
+    "origin": "base"
+  },
+  {
+    "id": "base-004",
+    "group": "Casa e utenze",
+    "name": "Luce",
+    "origin": "base"
+  },
+  {
+    "id": "base-005",
+    "group": "Casa e utenze",
+    "name": "Acqua",
+    "origin": "base"
+  },
+  {
+    "id": "base-006",
+    "group": "Casa e utenze",
+    "name": "Gas",
+    "origin": "base"
+  },
+  {
+    "id": "base-007",
+    "group": "Casa e utenze",
+    "name": "Internet",
+    "origin": "base"
+  },
+  {
+    "id": "base-008",
+    "group": "Casa e utenze",
+    "name": "Telefonia",
+    "origin": "base"
+  },
+  {
+    "id": "base-009",
+    "group": "Casa e utenze",
+    "name": "TARI e tributi locali",
+    "origin": "base"
+  },
+  {
+    "id": "base-010",
+    "group": "Casa e utenze",
+    "name": "Assicurazione casa",
+    "origin": "base"
+  },
+  {
+    "id": "base-011",
+    "group": "Casa e utenze",
+    "name": "Manutenzione casa",
+    "origin": "base"
+  },
+  {
+    "id": "base-012",
+    "group": "Casa e utenze",
+    "name": "Arredamento",
+    "origin": "base"
+  },
+  {
+    "id": "base-013",
+    "group": "Casa e utenze",
+    "name": "Elettrodomestici",
+    "origin": "base"
+  },
+  {
+    "id": "base-014",
+    "group": "Casa e utenze",
+    "name": "Spesa: alimentare e prodotti",
+    "origin": "base"
+  },
+  {
+    "id": "base-015",
+    "group": "Casa e utenze",
+    "name": "Prodotti per la casa",
+    "origin": "base"
+  },
+  {
+    "id": "base-016",
+    "group": "Casa e utenze",
+    "name": "Altro casa",
+    "origin": "base"
+  },
+  {
+    "id": "base-017",
+    "group": "Banche e finanze",
+    "name": "Finanziamento",
+    "origin": "base"
+  },
+  {
+    "id": "base-018",
+    "group": "Banche e finanze",
+    "name": "Interessi mutuo",
+    "origin": "base"
+  },
+  {
+    "id": "base-019",
+    "group": "Banche e finanze",
+    "name": "Spese bancarie",
+    "origin": "base"
+  },
+  {
+    "id": "base-020",
+    "group": "Banche e finanze",
+    "name": "Commissioni",
+    "origin": "base"
+  },
+  {
+    "id": "base-021",
+    "group": "Banche e finanze",
+    "name": "Assicurazioni",
+    "origin": "base"
+  },
+  {
+    "id": "base-022",
+    "group": "Banche e finanze",
+    "name": "Investimenti",
+    "origin": "base"
+  },
+  {
+    "id": "base-023",
+    "group": "Banche e finanze",
+    "name": "Risparmio",
+    "origin": "base"
+  },
+  {
+    "id": "base-024",
+    "group": "Banche e finanze",
+    "name": "Fondo di emergenza",
+    "origin": "base"
+  },
+  {
+    "id": "base-025",
+    "group": "Banche e finanze",
+    "name": "Giroconti",
+    "origin": "base"
+  },
+  {
+    "id": "base-026",
+    "group": "Banche e finanze",
+    "name": "Prelievi",
+    "origin": "base"
+  },
+  {
+    "id": "base-027",
+    "group": "Banche e finanze",
+    "name": "Altro finanze",
+    "origin": "base"
+  },
+  {
+    "id": "base-028",
+    "group": "Trasporti e mobilita",
+    "name": "Auto e leasing",
+    "origin": "base"
+  },
+  {
+    "id": "base-029",
+    "group": "Trasporti e mobilita",
+    "name": "Carburante",
+    "origin": "base"
+  },
+  {
+    "id": "base-030",
+    "group": "Trasporti e mobilita",
+    "name": "Assicurazione auto",
+    "origin": "base"
+  },
+  {
+    "id": "base-031",
+    "group": "Trasporti e mobilita",
+    "name": "Bollo auto",
+    "origin": "base"
+  },
+  {
+    "id": "base-032",
+    "group": "Trasporti e mobilita",
+    "name": "Tagliando auto",
+    "origin": "base"
+  },
+  {
+    "id": "base-033",
+    "group": "Trasporti e mobilita",
+    "name": "Revisione",
+    "origin": "base"
+  },
+  {
+    "id": "base-034",
+    "group": "Trasporti e mobilita",
+    "name": "Pneumatici",
+    "origin": "base"
+  },
+  {
+    "id": "base-035",
+    "group": "Trasporti e mobilita",
+    "name": "Manutenzione e riparazioni",
+    "origin": "base"
+  },
+  {
+    "id": "base-036",
+    "group": "Trasporti e mobilita",
+    "name": "Parcheggi e pedaggi",
+    "origin": "base"
+  },
+  {
+    "id": "base-037",
+    "group": "Trasporti e mobilita",
+    "name": "Bus e metro",
+    "origin": "base"
+  },
+  {
+    "id": "base-038",
+    "group": "Trasporti e mobilita",
+    "name": "Treni e taxi",
+    "origin": "base"
+  },
+  {
+    "id": "base-039",
+    "group": "Trasporti e mobilita",
+    "name": "Altro trasporti",
+    "origin": "base"
+  },
+  {
+    "id": "base-040",
+    "group": "Salute e benessere",
+    "name": "Spese mediche",
+    "origin": "base"
+  },
+  {
+    "id": "base-041",
+    "group": "Salute e benessere",
+    "name": "Farmacia",
+    "origin": "base"
+  },
+  {
+    "id": "base-042",
+    "group": "Salute e benessere",
+    "name": "Dentista",
+    "origin": "base"
+  },
+  {
+    "id": "base-043",
+    "group": "Salute e benessere",
+    "name": "Polizze sanitarie",
+    "origin": "base"
+  },
+  {
+    "id": "base-044",
+    "group": "Salute e benessere",
+    "name": "Parrucchiere e barbiere",
+    "origin": "base"
+  },
+  {
+    "id": "base-045",
+    "group": "Salute e benessere",
+    "name": "Estetista",
+    "origin": "base"
+  },
+  {
+    "id": "base-046",
+    "group": "Salute e benessere",
+    "name": "Palestra",
+    "origin": "base"
+  },
+  {
+    "id": "base-047",
+    "group": "Salute e benessere",
+    "name": "Cura personale",
+    "origin": "base"
+  },
+  {
+    "id": "base-048",
+    "group": "Salute e benessere",
+    "name": "Abbigliamento",
+    "origin": "base"
+  },
+  {
+    "id": "base-049",
+    "group": "Salute e benessere",
+    "name": "Altro salute",
+    "origin": "base"
+  },
+  {
+    "id": "base-050",
+    "group": "Tempo libero e acquisti",
+    "name": "Ristorazione",
+    "origin": "base"
+  },
+  {
+    "id": "base-051",
+    "group": "Tempo libero e acquisti",
+    "name": "Cultura e spettacoli",
+    "origin": "base"
+  },
+  {
+    "id": "base-052",
+    "group": "Tempo libero e acquisti",
+    "name": "Libri",
+    "origin": "base"
+  },
+  {
+    "id": "base-053",
+    "group": "Tempo libero e acquisti",
+    "name": "Videogiochi",
+    "origin": "base"
+  },
+  {
+    "id": "base-054",
+    "group": "Tempo libero e acquisti",
+    "name": "Viaggi e vacanze",
+    "origin": "base"
+  },
+  {
+    "id": "base-055",
+    "group": "Tempo libero e acquisti",
+    "name": "Regali",
+    "origin": "base"
+  },
+  {
+    "id": "base-056",
+    "group": "Tempo libero e acquisti",
+    "name": "Hobby",
+    "origin": "base"
+  },
+  {
+    "id": "base-057",
+    "group": "Tempo libero e acquisti",
+    "name": "Sport",
+    "origin": "base"
+  },
+  {
+    "id": "base-058",
+    "group": "Tempo libero e acquisti",
+    "name": "Acquisti vari",
+    "origin": "base"
+  },
+  {
+    "id": "base-059",
+    "group": "Tempo libero e acquisti",
+    "name": "Altro tempo libero",
+    "origin": "base"
+  },
+  {
+    "id": "base-060",
+    "group": "Servizi e abbonamenti",
+    "name": "Abbonamenti",
+    "origin": "base"
+  },
+  {
+    "id": "base-061",
+    "group": "Servizi e abbonamenti",
+    "name": "Streaming",
+    "origin": "base"
+  },
+  {
+    "id": "base-062",
+    "group": "Servizi e abbonamenti",
+    "name": "Servizi digitali",
+    "origin": "base"
+  },
+  {
+    "id": "base-063",
+    "group": "Servizi e abbonamenti",
+    "name": "Software",
+    "origin": "base"
+  },
+  {
+    "id": "base-064",
+    "group": "Servizi e abbonamenti",
+    "name": "Cloud e archiviazione",
+    "origin": "base"
+  },
+  {
+    "id": "base-065",
+    "group": "Servizi e abbonamenti",
+    "name": "Telefonia mobile",
+    "origin": "base"
+  },
+  {
+    "id": "base-066",
+    "group": "Servizi e abbonamenti",
+    "name": "Altri abbonamenti",
+    "origin": "base"
+  },
+  {
+    "id": "base-067",
+    "group": "Entrate e movimenti",
+    "name": "Entrate",
+    "origin": "base"
+  },
+  {
+    "id": "base-068",
+    "group": "Entrate e movimenti",
+    "name": "Stipendio",
+    "origin": "base"
+  },
+  {
+    "id": "base-069",
+    "group": "Entrate e movimenti",
+    "name": "Pensione",
+    "origin": "base"
+  },
+  {
+    "id": "base-070",
+    "group": "Entrate e movimenti",
+    "name": "Rimborsi",
+    "origin": "base"
+  },
+  {
+    "id": "base-071",
+    "group": "Entrate e movimenti",
+    "name": "Altre entrate",
+    "origin": "base"
+  },
+  {
+    "id": "base-072",
+    "group": "Entrate e movimenti",
+    "name": "Buoni pasto",
+    "origin": "base"
+  },
+  {
+    "id": "base-073",
+    "group": "Entrate e movimenti",
+    "name": "Spese personali",
+    "origin": "base"
+  },
+  {
+    "id": "base-074",
+    "group": "Entrate e movimenti",
+    "name": "Contanti",
+    "origin": "base"
+  },
+  {
+    "id": "base-075",
+    "group": "Entrate e movimenti",
+    "name": "Da classificare",
+    "origin": "base"
+  },
+  {
+    "id": "base-076",
+    "group": "Entrate e movimenti",
+    "name": "Altro",
+    "origin": "base"
+  }
+]

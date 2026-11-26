@@ -1,0 +1,1 @@
+Go 1.23+ su Linux: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags='-H=windowsgui -s -w'\nPrima compila uninstall, copia QuadraUninstall.exe in setup e poi compila setup. Le risorse .syso includono icone e manifest asInvoker.\nIl pacchetto payload.zip contiene solo file di programma; non aggiungere alcun archivio familiare.

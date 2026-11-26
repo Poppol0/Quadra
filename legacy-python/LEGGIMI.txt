@@ -1,0 +1,71 @@
+QUADRA - CONTABILITA FAMILIARE OFFLINE
+Fasi 1-2: codice unico e dati separati dal programma
+
+Questa versione e' una nuova installazione di Quadra. E' VUOTA, adatta sia
+agli amici sia a chi desidera ripristinare il proprio archivio personale.
+Non contiene movimenti, nomi, rate, saldi, foto o PDF di altre persone.
+Contiene soltanto un catalogo generico di categorie personalizzabili.
+
+AVVIO
+1. Estrai Quadra in una cartella del PC.
+2. Windows: apri AVVIA_WINDOWS.bat.
+   macOS/Linux: usa python3 server.py oppure avvia_mac_linux.command.
+3. Si apre http://127.0.0.1:8765 nel browser.
+4. Per chiudere, chiudi la finestra del terminale con Ctrl+C.
+
+Serve Python 3.10+; nessun database esterno o servizio cloud.
+Questa NON E' ANCORA un'applicazione desktop .exe: il contenitore desktop
+sara' sviluppato nella fase successiva.
+
+DOVE FINISCONO I DATI
+L'archivio NON sta nella cartella di installazione del programma.
+Quadra crea automaticamente una cartella privata:
+- Windows: %LOCALAPPDATA%\Quadra
+- macOS: ~/Library/Application Support/Quadra
+- Linux: ${XDG_DATA_HOME:-~/.local/share}/Quadra
+All'interno trovi archivio.json, allegati/, estratti/ e backup/.
+Se aggiorni o sostituisci i file del programma, i dati restano nella cartella
+privata. Conserva comunque periodicamente il backup completo ZIP.
+
+CAMBIARE CARTELLA DATI
+Chiudi prima Quadra. Poi esegui CONFIGURA_DATI_WINDOWS.bat su Windows,
+oppure configura_dati_mac_linux.command su macOS/Linux. Puoi anche usare:
+  python configura_archivio.py --path "PERCORSO_ASSOLUTO"
+Oppure avviare una sessione con:
+  python server.py --data-dir "PERCORSO_ASSOLUTO"
+Per priorita': --data-dir, variabile QUADRA_DATA_DIR, impostazione salvata,
+cartella predefinita.
+La selezione di una cartella nuova NON sposta automaticamente i vecchi dati.
+Per spostarli crea prima un backup completo ZIP e ripristinalo nella nuova cartella.
+Non scegliere una cartella interna a Quadra o condivisa pubblicamente.
+
+RIPRISTINO DELL'ARCHIVIO PRECEDENTE (MIGRAZIONE)
+1. Nella tua vecchia installazione, genera Impostazioni > Backup completo ZIP.
+2. Conserva il file ZIP originale e non eliminare il vecchio programma.
+3. Apri questa nuova versione e vai in Impostazioni > Ripristina un archivio completo.
+4. Seleziona il file ZIP, clicca Controlla il backup e verifica l'anteprima.
+5. Conferma esplicitamente RIPRISTINA: Quadra salva una copia preventiva
+   dell'archivio attualmente attivo, poi sostituisce i dati.
+6. Controlla conti, saldi, movimenti, rate e apri alcuni allegati a campione.
+
+Il backup ZIP include anche foto degli scontrini e PDF degli estratti conto.
+Un semplice JSON NON contiene i file: e' accettato nel ripristino completo
+solo se i dati non hanno riferimenti a immagini e PDF. Le vecchie categorie
+personalizzate sono conservate nella migrazione.
+Un file ZIP incompleto o con allegati mancanti viene rifiutato PRIMA
+che l'archivio attivo venga sostituito.
+
+L'opzione 'Unisci dati da JSON' e' diversa dal ripristino completo: serve
+soltanto per importare dati compatibili senza i documenti, e puo' non essere
+adatta a una migrazione di tutti i saldi e le anagrafiche.
+
+PRIVACY E SICUREZZA
+Quadra ascolta soltanto su 127.0.0.1, non richiede account online e non
+invia i dati a Internet. Proteggi il PC con password e conserva copie
+aggiornate del backup ZIP. I file in chiaro NON sono cifrati: non pubblicare
+ne' condividere la cartella dati e non inviare ad amici i backup reali.
+
+DA SAPERE
+Questa release conclude la separazione tra il codice e l'archivio e
+introduce un ripristino completo verificato. L'eseguibile desktop e
+l'installer Windows non sono inclusi: sono la fase successiva della roadmap.

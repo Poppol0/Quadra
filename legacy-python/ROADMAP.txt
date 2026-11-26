@@ -1,0 +1,26 @@
+QUADRA - ROADMAP DI SVILUPPO
+
+COMPLETATO - Fase 1: progetto unico
+- Base neutra condivisibile, con tutte le funzionalita della versione Rev2.
+- Nessuna installazione personale o anagrafica codificata nel programma.
+- Compatibilita con il formato storico degli archivi (migrazione al ripristino).
+- Backup completo ZIP e ripristino con anteprima, verifica degli allegati,
+  doppia conferma e backup preventivo.
+
+COMPLETATO - Fase 2: dati fuori dall'applicazione
+- Archivio JSON, scontrini, estratti e backup nella cartella dati privata.
+- Percorso configurabile da script o parametro --data-dir.
+- Un solo processo Quadra per cartella dati, per prevenire conflitti.
+- Cartella del programma sostituibile senza sovrascrivere i dati.
+
+DA FARE - Fase 3: contenitore desktop
+- Aprire l'interfaccia in una finestra desktop (proposta: pywebview).
+- Creare eseguibile Windows con runtime Python incluso.
+- Test installer, disinstallazione, icona e avvio automatico del server locale.
+
+DA FARE - Fase 4: collaudo migrazione familiare
+- Importare una copia del backup completo reale e confrontare conti, saldi,
+  movimenti, rate e documenti (senza pubblicare ne distribuire i dati).
+
+DA FARE - Fase 5: pacchetto pubblico
+- Preparare distribuzione pulita, test nuovo utente, guida e controlli privacy.

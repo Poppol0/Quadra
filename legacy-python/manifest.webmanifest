@@ -1,0 +1,25 @@
+{
+  "id": "/quadra-offline",
+  "name": "Quadra - I conti di casa, in ordine",
+  "short_name": "Quadra",
+  "description": "Gestione delle finanze familiari in locale.",
+  "start_url": "/#overview",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#EEE5D4",
+  "theme_color": "#1D4A35",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+name: Test e build Quadra
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  go-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: desktop/go.mod
+      - name: Test
+        working-directory: desktop
+        run: go test ./...
+  windows-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: desktop/go.mod
+      - name: Costruisci eseguibile e installer
+        run: python3 scripts/build_windows.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quadra-windows
+          path: |
+            dist/Quadra_Desktop_Windows.zip
+            dist/Quadra_Installer_Windows.exe
