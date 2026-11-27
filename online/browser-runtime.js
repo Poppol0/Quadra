@@ -69,6 +69,22 @@
       };
     });
   }
+  async function keepBackup(value,source='local') {
+    const key='backup:'+source+':'+new Date().toISOString()+':'+crypto.randomUUID();
+    await access('readwrite',store=>store.put(value,key));
+    return key;
+  }
+  async function recoveryKeys() {
+    return access('readonly',(store,done)=>{
+      store.getAllKeys().onsuccess=e=>done(e.target.result.filter(k=>typeof k==='string'&&k.startsWith('backup:')).sort().reverse());
+    });
+  }
+  async function recoveryBlob(key) {
+    if (!(await recoveryKeys()).includes(key)) throw new Error('Copia non disponibile');
+    const value=await access('readonly',(store,done)=>{store.get(key).onsuccess=e=>done(e.target.result);});
+    if (value instanceof Blob) return value;
+    return QuadraData.backup(value);
+  }
   async function mutate(action) {
     const expectedRevision = revision;
     const record = await current();
@@ -195,5 +211,5 @@
     } catch (error) { return json({ error: error.message }, 409); }
   };
   window.QUADRA_ONLINE = true;
-  window.QuadraBrowser = { current, save, load, checkpoint, access };
+  window.QuadraBrowser = { current, save, load, checkpoint, access, keepBackup, recoveryKeys, recoveryBlob };
 })();

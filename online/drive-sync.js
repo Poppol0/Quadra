@@ -62,59 +62,54 @@
     const files = []; let pageToken = '';
     do {
       const params = new URLSearchParams({ q: `trashed = false and appProperties has { key='quadraWorkspace' and value='${workspace}' }`,
-        fields: 'nextPageToken,files(id,name,size,version,appProperties)', pageSize: '1000' });
+        fields: 'nextPageToken,files(id,name,size,version,trashed,appProperties)', pageSize: '1000' });
       if (pageToken) params.set('pageToken',pageToken);
       const page = await (await request('files?' + params)).json();
       files.push(...page.files.filter(file => file.appProperties?.quadraWorkspace === workspace)); pageToken = page.nextPageToken;
     } while (pageToken);
     return files;
   }
+  const archiveCandidate = (file,workspace) => file && !file.trashed &&
+    file.appProperties?.quadraWorkspace === workspace &&
+    /^Quadra(?:_.*)?\.zip$/i.test(file.name || '') &&
+    (file.appProperties.quadraRole === 'archive' || typeof file.appProperties.quadraParents === 'string');
   async function snapshots(workspace) {
     const bound = await readMetadata(workspace);
+    // A bound file is not the only candidate: other devices may have created
+    // independent archives. Always inspect the workspace before any overwrite.
+    const files = (await workspaceFiles(workspace)).filter(f=>archiveCandidate(f,workspace));
     if (bound?.head) {
       const id = bound.head.split(':')[0];
-      const response = await request('files/' + encodeURIComponent(id) + '?fields=id,name,size,version,appProperties');
-      return [await response.json()];
+      const response = await request('files/' + encodeURIComponent(id) + '?fields=id,name,size,version,trashed,appProperties');
+      const direct = await response.json();
+      if (!archiveCandidate(direct,workspace) || direct.id !== id) throw new Error('Archivio Drive associato non valido. Nessun dato modificato.');
+      const index = files.findIndex(file=>file.id===id);
+      if (index>=0) files[index]=direct; else files.push(direct);
     }
-    const files = await workspaceFiles(workspace);
-    const archives = files.filter(file => file.appProperties.quadraRole === 'archive');
-    if (archives.length) return archives;
-    const parents = new Set(files.flatMap(file => JSON.parse(file.appProperties.quadraParents || '[]')));
-    return files.filter(file => !parents.has(file.id));
-  }
-  async function cleanup(workspace, activeId) {
-    const files = await workspaceFiles(workspace);
+    // Old append-only snapshots: only exclude a legacy ancestor if its
+    // relationship to another legacy snapshot is explicit. Never delete it.
+    const parents=new Set();
     for (const file of files) {
-      const properties = file.appProperties;
-      const createdByQuadra = properties?.quadraRole === 'archive' || typeof properties?.quadraParents === 'string';
-      if (file.id === activeId || !createdByQuadra || properties?.quadraWorkspace !== workspace || !/^Quadra(?:_.*)?\.zip$/i.test(file.name || '')) continue;
-      await request('files/' + encodeURIComponent(file.id),{
-        method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({trashed:true})
-      });
+      if (file.appProperties.quadraRole==='archive') continue;
+      let ids;
+      try { ids=JSON.parse(file.appProperties.quadraParents || '[]'); } catch { throw new Error('Cronologia Drive non valida. Verifica gli archivi manualmente.'); }
+      if (!Array.isArray(ids) || ids.some(id=>typeof id!=='string')) throw new Error('Cronologia Drive non valida.');
+      for (const id of ids) if (id!==file.id) parents.add(id);
     }
+    return files.filter(f=>f.appProperties.quadraRole==='archive' || !parents.has(f.id) || (bound?.head||'').split(':')[0]===f.id);
   }
-  async function finish(workspace, file) {
-    try { await cleanup(workspace,file.id); }
-    catch { notify('Sincronizzazione completata; pulizia dei vecchi ZIP non riuscita. Riprova con Sincronizza.',true); return; }
-    notify('Sincronizzazione completata.');
+  async function finish() {
+    // No automatic trash or deletion, even after successful synchronization.
+    notify('Sincronizzazione completata. Le altre copie sono conservate.');
   }
-  async function fingerprint(record) {
-    const hashes = [];
-    for (const { meta } of QuadraData.documents(record.state)) {
-      const blob = record.documents?.[meta.id];
-      if (!blob) throw new Error('Documento locale mancante');
-      hashes.push([meta.id, await QuadraData.sha(await blob.arrayBuffer())]);
-    }
-    hashes.sort((a,b) => a[0].localeCompare(b[0]));
-    return QuadraData.sha(new TextEncoder().encode(JSON.stringify([record.state,hashes])));
-  }
+  const fingerprint = record => QuadraData.fingerprint(record);
   async function readMetadata(workspace) {
     return QuadraBrowser.access('readonly',(store,done) => {
       store.get('drive:' + workspace).onsuccess = event => done(event.target.result);
     });
   }
   async function remember(workspace, head, hash) {
-    await QuadraBrowser.access('readwrite',store => store.put({ head, hash },'drive:' + workspace));
+    await QuadraBrowser.access('readwrite',store => store.put({ head, hash, fingerprintVersion:2 },'drive:' + workspace));
   }
   const remoteKey = file => file.version ? file.id + ':' + file.version : file.id;
   async function publish(record, workspace, files) {
@@ -132,7 +127,7 @@
       if (!etag) throw new Error('Drive non ha fornito il controllo di versione necessario: aggiornamento annullato per proteggere i dati.');
       const previous = await request('files/' + encodeURIComponent(file.id) + '?alt=media');
       const oldBlob = await previous.blob();
-      await QuadraBrowser.access('readwrite',store => store.put(oldBlob,'backup:drive:' + new Date().toISOString()));
+      await QuadraBrowser.keepBackup(oldBlob,'drive');
       // Apply the precondition to the actual content update, not just session creation.
       const boundary = 'quadra_' + crypto.randomUUID();
       const v2metadata = {title:metadata.name,mimeType:metadata.mimeType,properties:Object.entries(metadata.appProperties).map(([key,value]) => ({key,value,visibility:'PRIVATE'}))};
@@ -153,7 +148,10 @@
   async function pull(file) {
     if (Number(file.size) > 200*1024*1024) throw new Error('Archivio Drive oltre 200 MB');
     const blob = await (await request('files/' + encodeURIComponent(file.id) + '?alt=media')).blob();
-    return QuadraData.restore(blob,'drive.zip');
+    const restored = await QuadraData.restore(blob,'drive.zip');
+    const latest = await (await request('files/' + encodeURIComponent(file.id) + '?fields=id,version,trashed')).json();
+    if (latest.trashed || remoteKey(latest) !== remoteKey(file)) throw new Error('Archivio Drive aggiornato durante il download. Riprova.');
+    return restored;
   }
   function plan(base, localHash, heads) {
     if (heads.length > 1) return 'conflict';
@@ -173,7 +171,7 @@
       }); document.body.append(modal);
     });
   }
-  async function sync(manual = false) {
+  async function sync(manual = false, allowChoice = manual) {
     if (running) return running;
     busy(true);
     notify('Sincronizzazione in corso');
@@ -185,18 +183,24 @@
       const account = identity.user?.permissionId;
       if (!account) throw new Error('Impossibile verificare l’account Google.');
       if (config.account && config.account !== account) throw new Error('Questo archivio locale è collegato a un altro account Google. Accedi con lo stesso account per evitare di mescolare i dati.');
-      localStorage.setItem(SETTINGS,JSON.stringify({ connected:true, account }));
       const local = await QuadraBrowser.current(), hash = await fingerprint(local);
       const base = await readMetadata(config.workspace), heads = await snapshots(config.workspace);
-      let action = plan(base,hash,heads);
-      if (action === 'first-contact' && heads.length === 1) {
+      if (heads.length > 1) throw new Error('Più archivi Quadra su Drive: nessuna copia modificata o cestinata. Scarica le copie e risolvi manualmente prima di sincronizzare.');
+      if (base && heads.length===0) throw new Error('Archivio Drive associato non disponibile. Nessuna nuova copia creata.');
+      let action = plan(base?.fingerprintVersion===2 ? base : null,hash,heads);
+      if (action === 'first-contact') {
         const remote = await pull(heads[0]);
-        if (await fingerprint(remote) === hash) { await remember(config.workspace,remoteKey(heads[0]),hash); await finish(config.workspace,heads[0]); return; }
-        const hasData = ['transactions','accounts','members','recurring','payment_plans','budgets','goals','statements'].some(key => local.state[key]?.length);
-        action = hasData ? 'conflict' : 'pull';
+        if (await fingerprint(remote) === hash) {
+          await remember(config.workspace,remoteKey(heads[0]),hash);
+          localStorage.setItem(SETTINGS,JSON.stringify({connected:true,account}));
+          await finish(); return;
+        }
+        // An archive with only customized categories or import rules is not
+        // empty. Even first contact requires an explicit choice if data differ.
+        action = 'conflict';
       }
       if (action === 'conflict') {
-        if (!manual) throw new Error('Conflitto Drive rilevato: le copie sono conservate. Premi Sincronizza per scegliere la versione.');
+        if (!allowChoice) throw new Error('Conflitto Drive rilevato: le copie sono conservate. Premi Sincronizza per scegliere la versione.');
         const choice = await resolveChoice();
         if (choice === 'cancel') throw new Error('Sincronizzazione annullata: nessun dato sostituito.');
         if (choice === 'remote' && heads.length !== 1) throw new Error('Drive contiene più versioni: scarica e verifica i backup prima di scegliere quale ripristinare.');
@@ -211,20 +215,22 @@
         await QuadraBrowser.save(remote.state,{documents:remote.documents},local.revision);
         await remember(config.workspace,remoteKey(heads[0]),await fingerprint(remote));
       } else if (action === 'push') {
+        if ((await QuadraBrowser.current()).revision !== local.revision) throw new Error('Archivio locale modificato durante la sincronizzazione. Riprova.');
         const updated = await publish(local,config.workspace,heads);
         const after = await snapshots(config.workspace);
         if (after.length !== 1 || remoteKey(after[0]) !== remoteKey(updated)) throw new Error('Modifiche simultanee rilevate su Drive. Ripeti la sincronizzazione prima di continuare.');
         await remember(config.workspace,remoteKey(updated),hash);
         active = updated;
       }
-      await finish(config.workspace,active);
+      localStorage.setItem(SETTINGS,JSON.stringify({connected:true,account}));
+      await finish();
       if (manual && action === 'pull') await window.QuadraOnlineReload?.();
     })();
     try { return await running; } finally { running = null; busy(false); }
   }
   async function configure() {
-    window.QuadraLocalFolder?.useDrive();
     await sync(true);
+    window.QuadraLocalFolder?.useDrive();
     if (typeof render === 'function') render();
   }
   async function startup() {
@@ -242,9 +248,8 @@
         catch (error) { boot.querySelector('[data-drive-error]').textContent = error.name === 'AbortError' ? 'Seleziona una cartella per continuare senza Drive.' : error.message; }
       };
       button.addEventListener('click',async () => {
-        window.QuadraLocalFolder?.useDrive();
         button.disabled = true;
-        try { await sync(false); resolve(); }
+        try { await sync(false,true); window.QuadraLocalFolder?.useDrive(); resolve(); }
         catch (error) {
           button.disabled = false; notify(error.message,true);
           let message = boot.querySelector('[data-drive-error]');
