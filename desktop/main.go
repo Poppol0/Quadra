@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"syscall"
+	"strings"
 	"time"
 )
 
@@ -36,6 +37,7 @@ func main() {
 	}
 }
 func launch(serveOnly bool, folder string, port int) error {
+	dataDirOverride := folder != "" || strings.TrimSpace(os.Getenv("QUADRA_DATA_DIR")) != ""
 	if folder == "" {
 		folder = appDataDir()
 	}
@@ -48,6 +50,14 @@ func launch(serveOnly bool, folder string, port int) error {
 		return fmt.Errorf("la cartella dati è già aperta in un'altra sessione di Quadra: %w", err)
 	}
 	defer unlock()
+	prefs, _, err := readStoragePreferences()
+	if err != nil {
+		return fmt.Errorf("configurazione cartelle non valida: %w", err)
+	}
+	store.backup, err = configuredBackup(prefs.BackupRoot, store.dir)
+	if err != nil {
+		return fmt.Errorf("cartella backup non disponibile: %w", err)
+	}
 	logfile := filepath.Join(store.dir, "quadra-desktop.log")
 	lf, e := os.OpenFile(logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if e == nil {
@@ -65,7 +75,7 @@ func launch(serveOnly bool, folder string, port int) error {
 	}
 	defer listener.Close()
 	addr := listener.Addr().String()
-	backend := &Server{store: store, host: addr}
+	backend := &Server{store: store, host: addr, dataDirOverride: dataDirOverride}
 	httpd := &http.Server{Handler: http.HandlerFunc(backend.handler), ReadHeaderTimeout: 5 * time.Second, IdleTimeout: 45 * time.Second, MaxHeaderBytes: 16384}
 	done := make(chan error, 1)
 	go func() {
