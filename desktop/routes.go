@@ -29,6 +29,7 @@ var mimeTypes = map[string]string{".html": "text/html; charset=utf-8", ".js": "a
 type Server struct {
 	store *Store
 	host  string
+	dataDirOverride bool
 }
 
 func (a *Server) handler(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +127,9 @@ func fileExtension(t string) string { return allowedMIMEs[t] }
 func (a *Server) get(w http.ResponseWriter, r *http.Request) error {
 	p := r.URL.Path
 	if p == "/api/storage" {
-		respond(w, 200, map[string]any{"data_dir": a.store.dir, "archive": a.store.archive, "separate_from_program": true})
+		a.store.mu.Lock()
+		defer a.store.mu.Unlock()
+		respond(w, 200, a.storageStatus())
 		return nil
 	}
 	if p == "/api/state" {
@@ -218,6 +221,7 @@ func (a *Server) get(w http.ResponseWriter, r *http.Request) error {
 	return notFound("risorsa non trovata")
 }
 func (a *Server) put(w http.ResponseWriter, r *http.Request) error {
+	if r.URL.Path == "/api/storage" { return a.configureStorage(w,r) }
 	if r.URL.Path != "/api/state" {
 		return notFound("indirizzo non valido")
 	}
@@ -254,6 +258,12 @@ func (a *Server) put(w http.ResponseWriter, r *http.Request) error {
 func (a *Server) post(w http.ResponseWriter, r *http.Request) error {
 	p := r.URL.Path
 	switch p {
+	case "/api/storage/pick-folder":
+		if !folderPickerAvailable() { return bad("selettore nativo non disponibile; inserisci il percorso") }
+		dir, e := pickFolder(r.Context())
+		if e != nil { return bad(e.Error()) }
+		respond(w, 200, map[string]any{"directory":dir})
+		return nil
 	case "/api/archives/inspect", "/api/archives/restore":
 		raw, e := limited(r, maxBackup)
 		if e != nil {
