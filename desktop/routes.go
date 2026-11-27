@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
@@ -27,9 +28,11 @@ var allowedAssets = map[string]string{
 var mimeTypes = map[string]string{".html": "text/html; charset=utf-8", ".js": "application/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json", ".png": "image/png"}
 
 type Server struct {
-	store *Store
-	host  string
-	dataDirOverride bool
+	store           *Store
+	host            string
+	lockedDataDir   bool
+	pendingDataDir  string // guarded by store.mu
+	restartRequired atomic.Bool
 }
 
 func (a *Server) handler(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +47,10 @@ func (a *Server) handler(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method != "GET" && r.Method != "HEAD" && r.Header.Get("Origin") != "http://"+a.host {
 		respondError(w, 403, "Origine non autorizzata")
+		return
+	}
+	if a.restartRequired.Load() && r.Method != "GET" && r.Method != "HEAD" {
+		respondError(w, 423, "La cartella dati è stata copiata. Chiudi e riapri Quadra prima di registrare altre modifiche.")
 		return
 	}
 	var err error
@@ -127,9 +134,7 @@ func fileExtension(t string) string { return allowedMIMEs[t] }
 func (a *Server) get(w http.ResponseWriter, r *http.Request) error {
 	p := r.URL.Path
 	if p == "/api/storage" {
-		a.store.mu.Lock()
-		defer a.store.mu.Unlock()
-		respond(w, 200, a.storageStatus())
+		respond(w, 200, a.storageDetails())
 		return nil
 	}
 	if p == "/api/state" {
@@ -221,7 +226,6 @@ func (a *Server) get(w http.ResponseWriter, r *http.Request) error {
 	return notFound("risorsa non trovata")
 }
 func (a *Server) put(w http.ResponseWriter, r *http.Request) error {
-	if r.URL.Path == "/api/storage" { return a.configureStorage(w,r) }
 	if r.URL.Path != "/api/state" {
 		return notFound("indirizzo non valido")
 	}
@@ -258,11 +262,55 @@ func (a *Server) put(w http.ResponseWriter, r *http.Request) error {
 func (a *Server) post(w http.ResponseWriter, r *http.Request) error {
 	p := r.URL.Path
 	switch p {
-	case "/api/storage/pick-folder":
-		if !folderPickerAvailable() { return bad("selettore nativo non disponibile; inserisci il percorso") }
-		dir, e := pickFolder(r.Context())
-		if e != nil { return bad(e.Error()) }
-		respond(w, 200, map[string]any{"directory":dir})
+	case "/api/storage/pick-folder", "/api/storage/configure-folder":
+		raw, e := limited(r, 8192)
+		if e != nil {
+			return e
+		}
+		var payload struct {
+			Kind string `json:"kind"`
+			Path string `json:"path"`
+		}
+		if e = json.Unmarshal(raw, &payload); e != nil {
+			return bad("richiesta cartella non valida")
+		}
+		if payload.Kind != "data" && payload.Kind != "backup" {
+			return bad("tipo cartella non valido")
+		}
+		if p == "/api/storage/pick-folder" {
+			current := a.store.dir
+			if payload.Kind == "backup" {
+				current = a.store.backup
+			}
+			chosen, e := pickFolder(current, payload.Kind)
+			if e != nil {
+				return bad(e.Error())
+			}
+			if chosen == "" {
+				respond(w, 200, map[string]any{"cancelled": true})
+				return nil
+			}
+			target, e := cleanChosenFolder(chosen)
+			if e != nil {
+				return bad(e.Error())
+			}
+			respond(w, 200, map[string]any{"path": target, "kind": payload.Kind})
+			return nil
+		}
+		result, e := a.configureFolder(payload.Kind, payload.Path)
+		if e != nil {
+			return e
+		}
+		respond(w, 200, result)
+		return nil
+	case "/api/backup/save-to-folder":
+		a.store.mu.Lock()
+		defer a.store.mu.Unlock()
+		result, e := a.store.saveCompleteBackup("quadra-backup-completo-")
+		if e != nil {
+			return e
+		}
+		respond(w, 200, result)
 		return nil
 	case "/api/archives/inspect", "/api/archives/restore":
 		raw, e := limited(r, maxBackup)

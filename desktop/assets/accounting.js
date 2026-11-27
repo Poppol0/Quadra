@@ -63,9 +63,9 @@ function periodPicker(){
  for(const y of [...years])years.add(y+1);
  const options=[...years].filter(y=>y>=2020&&y<2100).sort((a,b)=>b-a).map(y=>`<option value="${y}" ${y===ui.year?'selected':''}>${y}</option>`).join('');
  const mode=[['year','Anno'],['quarter','Trimestre'],['month','Mese']].map(([v,label])=>`<button class="period-tab ${ui.periodMode===v?'selected':''}" data-period-mode="${v}">${label}</button>`).join('');
- const quarter=ui.periodMode==='quarter'?`<select data-period-quarter title="Trimestre">${[1,2,3,4].map(q=>`<option value="${q}" ${q===ui.quarter?'selected':''}>${q}° trimestre</option>`).join('')}</select>`:'';
+ const quarter=ui.periodMode==='quarter'?`<select class="quarter-select-full" data-period-quarter aria-label="Scegli trimestre" title="Trimestre">${[1,2,3,4].map(q=>`<option value="${q}" ${q===ui.quarter?'selected':''}>${q}° trimestre</option>`).join('')}</select><select class="quarter-select-compact" data-period-quarter aria-label="Scegli trimestre" title="Trimestre">${[1,2,3,4].map(q=>`<option value="${q}" ${q===ui.quarter?'selected':''}>${q}° trim.</option>`).join('')}</select>`:'';
  const month=ui.periodMode==='month'?`<div class="month-control"><button data-month="-1" aria-label="Mese precedente">${icon('chevron-left',15)}</button><span class="month-label">${formatMonth(ui.month)}</span><button data-month="1" aria-label="Mese successivo">${icon('chevron-right',15)}</button></div>`:'';
- return `<div class="period-picker"><label class="period-year-label">Esercizio <select data-period-year aria-label="Seleziona anno">${options}</select></label><div class="period-tabs">${mode}</div>${quarter}${month}</div>`;
+ return `<div class="period-picker" role="group" aria-label="Periodo di bilancio"><label class="period-year-label"><span class="period-year-text">Esercizio</span> <select data-period-year aria-label="Seleziona anno">${options}</select></label><div class="period-tabs">${mode}</div>${quarter||month?`<div class="period-extra">${quarter}${month}</div>`:''}</div>`;
 }
 const previousDay=(iso)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);};
 function ledgerEffects(tx,accountId){

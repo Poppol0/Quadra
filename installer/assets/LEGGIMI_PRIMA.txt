@@ -1,4 +1,4 @@
-QUADRA DESKTOP - FASE 3
+QUADRA DESKTOP - AGGIORNAMENTO INTERFACCIA 1.1.1
 I conti di casa, in ordine.
 Versione portabile per Windows 10/11, 64 bit
 
@@ -41,10 +41,17 @@ completo, selezionando il backup ZIP della vecchia installazione.
 Il backup ZIP e preferibile al solo JSON, perche include foto e PDF.
 Controlla movimenti, conti, saldi, rate e allegati prima di eliminare vecchi backup.
 
-CAMBIO DELLA CARTELLA DATI
-Esegui CONFIGURA_DATI_WINDOWS.bat, scegli un percorso privato e conferma.
-L'operazione NON sposta i dati: fai prima il backup completo ZIP e
-ripristinalo nella nuova cartella. Non scegliere cartelle condivise pubblicamente.
+CARTELLA DATI E CARTELLA BACKUP
+Apri Impostazioni > Dove sono i dati per scegliere due cartelle separate:
+una per archivio, documenti ed estratti, una per i backup completi e automatici.
+Quadra crea prima una copia ZIP di sicurezza, trasferisce i file in una cartella
+NUOVA e VUOTA e li verifica, senza cancellare i file originali.
+Dopo avere cambiato la cartella dei dati, chiudi e riapri Quadra PRIMA di
+registrare nuovi movimenti. Il cambio della sola cartella backup è immediato.
+
+Il vecchio CONFIGURA_DATI_WINDOWS.bat resta per compatibilita: se lo usi, NON
+copia i dati. Preferisci la procedura integrata nelle Impostazioni.
+Non scegliere cartelle pubbliche o sincronizzate al cloud se vuoi restare offline.
 
 DIAGNOSTICA
 In caso di problemi apri il file:

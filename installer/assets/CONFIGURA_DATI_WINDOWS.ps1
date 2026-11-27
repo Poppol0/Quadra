@@ -18,7 +18,16 @@ $answer = [System.Windows.Forms.MessageBox]::Show($msg,'Quadra - Cambio cartella
 if ($answer -ne [System.Windows.Forms.DialogResult]::Yes){exit 0}
 $targetDir = Join-Path $env:APPDATA 'Quadra'
 [System.IO.Directory]::CreateDirectory($targetDir) | Out-Null
-$json = @{data_dir=$folder} | ConvertTo-Json -Compress
+# Preserve an independently configured backup directory.
+$currentConfig = Join-Path $targetDir 'config.json'
+$preferences = @{data_dir=$folder}
+if (Test-Path $currentConfig) {
+    try {
+        $old = Get-Content -Raw -Encoding UTF8 $currentConfig | ConvertFrom-Json
+        if ($old.backup_dir) { $preferences.backup_dir = $old.backup_dir }
+    } catch { Write-Host 'Avviso: configurazione precedente non leggibile.' }
+}
+$json = $preferences | ConvertTo-Json -Compress
 [System.IO.File]::WriteAllText((Join-Path $targetDir 'config.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "Percorso dati configurato: $folder"
 Write-Host 'Riavvia Quadra e ripristina il backup completo ZIP se necessario.'

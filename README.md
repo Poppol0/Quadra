@@ -52,6 +52,12 @@ Base di sviluppo unificata di Quadra Desktop e installer Windows. L'eseguibile g
 
 Tutti i diritti riservati al titolare del progetto. Nessuna licenza open source e concessa automaticamente dalla presenza del codice in questa repository.
 
-### Cartelle dati e backup
+## Revisione interfaccia e salvataggi locali
 
-In Impostazioni → Dove sono i dati puoi indicare la cartella dell'archivio e una destinazione separata per i backup automatici e le copie di sicurezza. Su Windows il pulsante Scegli apre il selettore nativo; negli altri ambienti si inserisce il percorso assoluto. I percorsi si applicano al riavvio. Il cambio di archivio crea prima una copia ZIP nella cartella backup attiva e non sposta o elimina i dati precedenti: ripristina la copia ZIP nel nuovo archivio se vuoi trasferire lo storico. Le esportazioni scaricate dal browser seguono le preferenze del browser. La destinazione dei backup personalizzata contiene una sottocartella distinta per ogni archivio.
+Le Impostazioni consentono di configurare **due cartelle distinte**: una per
+l'archivio e i documenti del gestionale e una per le copie di sicurezza.
+Quadra trasferisce i file tramite copia verificata, senza cancellare l'origine,
+e richiede un riavvio quando si cambia la cartella dei dati. Il backup ZIP puo
+essere salvato direttamente nella cartella scelta, oppure scaricato.
+La funzione di selezione grafica delle cartelle e disponibile nella versione
+Desktop Windows. Nessun dato personale viene incluso nei sorgenti o nell'installer.

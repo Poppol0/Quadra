@@ -34,24 +34,80 @@ type Store struct {
 	stm     string
 }
 
+// storageConfig is intentionally outside the installation directory. Existing
+// configurations containing only data_dir remain compatible.
+type storageConfig struct {
+	DataDir   string `json:"data_dir,omitempty"`
+	BackupDir string `json:"backup_dir,omitempty"`
+}
+
+func storageConfigFile() string { return filepath.Join(userConfigDir(), "config.json") }
+func readStorageConfig() (storageConfig, error) {
+	var cfg storageConfig
+	b, err := os.ReadFile(storageConfigFile())
+	if errors.Is(err, os.ErrNotExist) {
+		return cfg, nil
+	}
+	if err != nil {
+		return cfg, err
+	}
+	if err = json.Unmarshal(b, &cfg); err != nil {
+		return cfg, fmt.Errorf("configurazione dei percorsi non valida: %w", err)
+	}
+	return cfg, nil
+}
+func writeStorageConfig(cfg storageConfig) error {
+	folder := userConfigDir()
+	if err := os.MkdirAll(folder, 0700); err != nil {
+		return err
+	}
+	raw, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(folder, ".quadra-config-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp.Name())
+	if err = tmp.Chmod(0600); err != nil {
+		tmp.Close()
+		return err
+	}
+	if _, err = tmp.Write(append(raw, '\n')); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err = tmp.Sync(); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err = tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), storageConfigFile())
+}
 func appDataDir() string {
 	if env := strings.TrimSpace(os.Getenv("QUADRA_DATA_DIR")); env != "" {
 		return os.ExpandEnv(env)
 	}
-	if b, e := os.ReadFile(filepath.Join(userConfigDir(), "config.json")); e == nil {
-		var v struct {
-			DataDir string `json:"data_dir"`
-		}
-		if json.Unmarshal(b, &v) == nil && v.DataDir != "" {
-			if filepath.IsAbs(v.DataDir) { return v.DataDir }
-			return os.ExpandEnv(v.DataDir)
-		}
+	if cfg, err := readStorageConfig(); err == nil && cfg.DataDir != "" {
+		return os.ExpandEnv(cfg.DataDir)
 	}
 	home, _ := os.UserHomeDir()
 	if local := os.Getenv("LOCALAPPDATA"); local != "" {
 		return filepath.Join(local, "Quadra")
 	}
 	return filepath.Join(home, ".local", "share", "Quadra")
+}
+func appBackupDir(dataDir string) string {
+	if env := strings.TrimSpace(os.Getenv("QUADRA_BACKUP_DIR")); env != "" {
+		return os.ExpandEnv(env)
+	}
+	if cfg, err := readStorageConfig(); err == nil && cfg.BackupDir != "" {
+		return os.ExpandEnv(cfg.BackupDir)
+	}
+	return filepath.Join(dataDir, "backup")
 }
 func userConfigDir() string {
 	if s := os.Getenv("APPDATA"); s != "" {
@@ -70,7 +126,7 @@ func makeStore(dir string) (*Store, error) {
 	if abs == appdir || strings.HasPrefix(strings.ToLower(abs)+string(os.PathSeparator), strings.ToLower(appdir)+string(os.PathSeparator)) {
 		return nil, errors.New("la cartella dati non puo stare nella cartella del programma")
 	}
-	s := &Store{dir: abs, archive: filepath.Join(abs, "archivio.json"), backup: filepath.Join(abs, "backup"), att: filepath.Join(abs, "allegati"), stm: filepath.Join(abs, "estratti")}
+	s := &Store{dir: abs, archive: filepath.Join(abs, "archivio.json"), backup: appBackupDir(abs), att: filepath.Join(abs, "allegati"), stm: filepath.Join(abs, "estratti")}
 	for _, folder := range []string{abs, s.backup, s.att, s.stm} {
 		if err = os.MkdirAll(folder, 0700); err != nil {
 			return nil, err

@@ -24,7 +24,7 @@ import (
 var bundled embed.FS
 
 const (
-	appVersion     = "1.0.0"
+	appVersion     = "1.1.1"
 	mbYesNo        = 0x00000004
 	mbYesNoCancel  = 0x00000003
 	mbIconInfo     = 0x00000040

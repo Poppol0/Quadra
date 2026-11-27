@@ -3,7 +3,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -24,9 +23,4 @@ func lockDirectory(path string) (func(), error) {
 		return nil, e
 	}
 	return func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN); _ = f.Close() }, nil
-}
-
-func folderPickerAvailable() bool { return false }
-func pickFolder(_ context.Context) (string, error) {
-	return "", errors.New("inserisci manualmente il percorso assoluto")
 }
