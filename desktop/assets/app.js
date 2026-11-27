@@ -46,7 +46,7 @@ const PAGES = [
   {id:'accounts',label:'Conti e saldi',icon:'wallet'},
   {id:'recurring',label:'Scadenze e rate',icon:'calendar-check'},
   {id:'insights',label:'Analisi',icon:'chart-no-axes-combined'},
-  {id:'budgets',label:'Budget',icon:'gauge'},
+  {id:'budgets',label:'Budget',icon:'calculator'},
   {id:'goals',label:'Obiettivi',icon:'target'},
   {id:'family',label:'Famiglia',icon:'users'},
   {id:'settings',label:'Impostazioni',icon:'settings'},
@@ -59,6 +59,7 @@ const PATHS = {
   'calendar-check':'M4 5h16v16H4z M8 3v4 M16 3v4 M4 10h16 M8 16l2 2 4-4',
   'chart-no-axes-combined':'M3 20l6-7 5 3 7-10 M16 6h5v5',
   'gauge':'M4 17a9 9 0 0 1 16 0 M12 15l5-5 M8 20h8',
+  'calculator':'M5 2h14v20H5z M8 6h8v4H8z M8 14h1 M15 14h1 M8 18h1 M15 18h1',
   'target':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10 M12 10v4',
   'users':'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-4-4h-2',
   'settings':'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
@@ -347,8 +348,10 @@ async function removeMember(id){
 }
 async function restoreMember(id){const m=state.members.find(x=>x.id===id);if(!m)return;m.active=true;try{await persistLocal();render();toast('Componente ripristinato');}catch(err){m.active=false;toast(err.message,true);}}
 function renderSettings(){return `${pageHead('Impostazioni','Archivi privati, ripristino verificato, backup e preferenze.')}
-<div class="grid two-col">
- <article class="card">
+${renderCategoryManager()}
+${renderNotificationSettings()}
+<div class="grid cols-2 section-spacer">
+<article class="card">
   <div class="card-top"><div><h2>Ripristina un archivio completo</h2><p class="subheading">Migra qui il backup di una versione precedente di Quadra</p></div>${icon('folder',20)}</div>
   <p class="explain">Seleziona un <strong>backup ZIP completo</strong> con archivio, scontrini e PDF oppure un JSON senza documenti. Prima di qualsiasi sostituzione Quadra mostra l'anteprima e conserva una copia di sicurezza dell'archivio attuale.</p>
   <div class="upload-zone"><div class="list-icon">${icon('upload',22)}</div><strong>Backup Quadra ZIP o JSON</strong>
@@ -356,20 +359,40 @@ function renderSettings(){return `${pageHead('Impostazioni','Archivi privati, ri
   <button class="btn primary sm" data-action="inspect-restore">${icon('search',15)} Controlla il backup</button></div>
   <div id="restore-preview" class="restore-preview" aria-live="polite"></div>
  </article>
- <article class="card">
-  <div class="card-top"><div><h2>Dove sono i dati</h2><p class="subheading">Separati dal programma, senza cloud</p></div>${icon('shield',20)}</div>
-  <div class="settings-block"><div><h3>Cartella attiva</h3><p><code class="data-dir-display">${esc(storageInfo?.data_dir||'Cartella personale Quadra')}</code></p></div><span class="badge soft">Privata</span></div>
-  <div class="settings-block"><div><h3>Archivio e documenti</h3><p><code>archivio.json</code>, <code>allegati/</code>, <code>estratti/</code> e <code>backup/</code> sono in questa cartella, non nei file del programma.</p></div></div>
-  <div class="settings-block"><div><h3>Cambia posizione</h3><p>Chiudi Quadra ed esegui <code>CONFIGURA_DATI_WINDOWS.bat</code> (Windows) oppure <code>configura_dati_mac_linux.command</code>. Il cambio posizione non cancella né trasferisce automaticamente l'archivio precedente.</p></div></div>
-  <div class="settings-block"><div><h3>Sicurezza</h3><p>Il server ascolta soltanto su <code>127.0.0.1</code>. Proteggi l'account del PC e conserva i backup in un luogo privato.</p></div><span class="badge soft">Offline</span></div>
- </article>
+<article class="card"><div class="card-top"><div><h2>Unisci dati da un JSON</h2><p class="subheading">Funzione avanzata: importa solo registrazioni, non documenti</p></div>${icon('file-json',19)}</div><p class="explain">Per trasferire l'intera contabilità usa invece <strong>Ripristina un archivio completo</strong>. L'unione evita gli ID duplicati, ma non sostituisce i saldi esistenti e non importa immagini o PDF.</p><div class="upload-zone"><strong>JSON da unire allo storico corrente</strong>${styledFilePicker('seed-file','.json,application/json')}<button class="btn ghost sm" data-action="import">Unisci JSON (senza allegati)</button></div><p class="form-hint" id="import-status">Nessun documento viene copiato con questa funzione.</p></article>
 </div>
-<article class="card section-spacer"><div class="card-top"><div><h2>Unisci dati da un JSON</h2><p class="subheading">Funzione avanzata: importa solo registrazioni, non documenti</p></div>${icon('file-json',19)}</div><p class="explain">Per trasferire l'intera contabilità usa invece <strong>Ripristina un archivio completo</strong>. L'unione evita gli ID duplicati, ma non sostituisce i saldi esistenti e non importa immagini o PDF.</p><div class="upload-zone"><strong>JSON da unire allo storico corrente</strong>${styledFilePicker('seed-file','.json,application/json')}<button class="btn ghost sm" data-action="import">Unisci JSON (senza allegati)</button></div><p class="form-hint" id="import-status">Nessun documento viene copiato con questa funzione.</p></article>
-${renderCategoryManager()}
-${renderNotificationSettings()}
 <div class="grid two-col section-spacer"><article class="card"><div class="card-top"><div><h2>Esporta una copia</h2><p class="subheading">Proteggi le tue registrazioni</p></div>${icon('download',18)}</div><p class="explain">Il <strong>backup completo ZIP</strong> include movimenti, conti, categorie, foto e PDF con verifica d'integrità. Il JSON e il CSV contengono soltanto dati contabili. Conserva le copie in una cartella privata.</p><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:22px"><button class="btn primary" data-action="export-zip">${icon('download',16)} Backup completo ZIP</button><button class="btn" data-action="export">${icon('download',16)} Solo JSON</button><button class="btn" data-action="export-csv">${icon('download',16)} Movimenti CSV</button></div><div class="card-foot">${state.transactions.length} movimenti / ${state.recurring.length} ricorrenze / ${(state.payment_plans||[]).length} piani / ${state.budgets.length} budget</div></article>
 <article class="card"><div class="card-top"><div><h2>Google Calendar</h2><p class="subheading">Esportazione manuale, nessun account collegato</p></div>${icon('calendar',18)}</div><p class="explain">Scarica il file .ics delle scadenze selezionate e importalo in Google Calendar. Nessuna sincronizzazione o trasferimento automatico.</p><button class="btn primary" data-action="export-calendar">${icon('calendar',16)} Prepara file .ics</button></article></div>
-<div class="grid two-col section-spacer"><article class="card"><div class="card-top"><div><h2>Aspetto</h2><p class="subheading">Quattro temi grafici</p></div>${icon('settings',18)}</div><div class="settings-block"><div><h3>Tema</h3><p>Oat Milk, Forest Green e Tomato Red, oppure Midnight Black, Electric Blue e Sunset Orange.</p></div><button class="btn" data-action="theme">${icon('palette',16)} ${esc(THEME_NAMES[ui.theme])}</button></div></article></div>`;}
+<div class="grid two-col section-spacer"><article class="card"><div class="card-top"><div><h2>Aspetto</h2><p class="subheading">Quattro temi grafici</p></div>${icon('settings',18)}</div><div class="settings-block"><div><h3>Tema</h3><p>Oat Milk, Forest Green e Tomato Red, oppure Midnight Black, Electric Blue e Sunset Orange.</p></div><button class="btn" data-action="theme">${icon('palette',16)} ${esc(THEME_NAMES[ui.theme])}</button></div></article>
+${renderStorageSettings()}</div>`;}
+function renderStorageSettings(){return `<article class="card">
+ <div class="card-top"><div><h2>Dove sono i dati</h2><p class="subheading">Separati dal programma, senza cloud</p></div>${icon('shield',20)}</div>
+ <div class="settings-block"><div><h3>Cartella dati attiva</h3><p><code class="data-dir-display">${esc(storageInfo?.data_dir||'Cartella personale Quadra')}</code></p></div><span class="badge soft">Privata</span></div>
+ <div class="settings-block"><div><h3>Cartella backup attiva</h3><p><code class="data-dir-display">${esc(storageInfo?.backup_dir||'backup/ nella cartella dati')}</code></p></div></div>
+ <div class="storage-preferences">
+ <p class="explain">Scegli due cartelle. Le nuove impostazioni diventano effettive al riavvio. Lascia vuoto il percorso dei backup per usare la sottocartella backup dell’archivio.</p>
+ ${storageInfo?.config_error?`<p class="account-caution">${esc(storageInfo.config_error)}</p>`:''}
+ <div class="field"><label for="storage-data">Cartella dati al prossimo avvio</label><div class="storage-path-row"><input id="storage-data" value="${esc(storageInfo?.next_data_dir||storageInfo?.data_dir||'')}" ${storageInfo?.data_dir_override?'disabled':''}>${storageInfo?.folder_picker&&!storageInfo?.data_dir_override?`<button class="btn" data-action="pick-data-folder">${icon('folder',15)} Scegli</button>`:''}</div></div>
+ ${storageInfo?.data_dir_override?'<p class="form-hint">Il percorso dati è impostato dai parametri di avvio.</p>':''}
+ <div class="field"><label for="storage-backup">Cartella destinazione backup</label><div class="storage-path-row"><input id="storage-backup" value="${esc(storageInfo?.backup_root||'')}" placeholder="Predefinita: backup/">${storageInfo?.folder_picker?`<button class="btn" data-action="pick-backup-folder">${icon('folder',15)} Scegli</button>`:''}</div></div>
+ <p class="form-hint">I backup automatici e le copie di sicurezza sono organizzati per archivio. Le esportazioni scaricate dal browser restano nella destinazione scelta dal browser.</p>
+ <button class="btn primary" data-action="save-storage">Salva percorsi</button>
+ <p class="form-hint" id="storage-status" aria-live="polite"></p>
+ </div>
+ <div class="settings-block"><div><h3>Sicurezza</h3><p>Il cambio della cartella dati non trasferisce automaticamente archivio e documenti. Quadra crea una copia ZIP di sicurezza prima del cambio. Dopo il riavvio, ripristina il backup se necessario.</p></div><span class="badge soft">Offline</span></div>
+</article>`;}
+async function chooseStorageFolder(id){
+ try{const result=await fetchJSON('/api/storage/pick-folder',{method:'POST'});const field=document.getElementById(id);if(field&&result.directory)field.value=result.directory;}catch(err){toast(err.message,true);}
+}
+async function saveStorageSettings(){
+ const data=$ ('#storage-data')?.value.trim(),backup=$('#storage-backup')?.value.trim();
+ if(!data){toast('Indica la cartella dati',true);return;}
+ const change=data!==storageInfo?.data_dir;
+ if(change&&!confirm('Cambiando cartella al prossimo avvio verrà aperto un archivio diverso (o vuoto). I dati precedenti restano nella cartella attuale. Sarà creata una copia ZIP di sicurezza. Continuare?'))return;
+ const button=$('[data-action="save-storage"]');if(button)button.disabled=true;
+ try{const result=await fetchJSON('/api/storage',{method:'PUT',body:JSON.stringify({data_dir:data,backup_root:backup||'',confirm_switch:change})});storageInfo=result;render();const status=$('#storage-status');if(status)status.textContent='Percorsi salvati. Chiudi e riavvia Quadra.'+(result.safety_copy?' Copia ZIP: '+result.safety_copy:'');toast('Percorsi salvati. Riavvia Quadra.');}
+ catch(err){toast(err.message,true);}finally{if(button)button.disabled=false;}
+}
 
 function onClick(e){
  const themeChoice=e.target.closest('[data-set-theme]');if(themeChoice){applyTheme(themeChoice.dataset.setTheme);themeChoice.closest('.modal-backdrop')?.remove();render();toast('Tema aggiornato');return;}
@@ -392,6 +415,9 @@ function onClick(e){
  const action=e.target.closest('[data-action]');if(!action)return;
  switch(action.dataset.action){
  case 'theme':openThemeModal();break;
+ case 'pick-data-folder':chooseStorageFolder('storage-data');break;
+ case 'pick-backup-folder':chooseStorageFolder('storage-backup');break;
+ case 'save-storage':saveStorageSettings();break;
  case 'notification-enable':enableNotifications();break;
  case 'notification-disable':disableNotifications();break;
  case 'notification-test':testNotification();break;
