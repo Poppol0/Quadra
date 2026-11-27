@@ -24,6 +24,7 @@
 # Binari e file di build
 build/
 dist/
+node_modules/
 **/payload.zip
 **/QuadraUninstall.exe
 **/quadra_windows_amd64.syso

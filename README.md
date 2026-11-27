@@ -48,6 +48,16 @@ Prima di qualunque migrazione: fai un backup completo ZIP, conserva una copia lo
 
 ## Stato
 
+Per avviare la versione web/PWA di sviluppo su Windows, installa Node.js 20+
+e fai doppio clic su [`AVVIA_QUADRA_ONLINE.cmd`](AVVIA_QUADRA_ONLINE.cmd).
+Poi apri `http://127.0.0.1:8080` e lascia aperta la finestra del server.
+Il primo avvio richiede Internet per installare le dipendenze. Non serve Go.
+
+Per lo sviluppo della versione web/PWA sul ramo `feat/online-version`, consulta
+il [changelog del ramo](docs/CHANGELOG_feat-online-version.md), disponibile anche
+in [PDF condivisibile](docs/CHANGELOG_feat-online-version.pdf), e le
+[istruzioni della versione online](docs/ONLINE_VERSION.md).
+
 Base di sviluppo unificata di Quadra Desktop e installer Windows. L'eseguibile generato va provato su un PC Windows reale; la semplice cross-compilazione non costituisce un collaudo dell'installazione.
 
 Tutti i diritti riservati al titolare del progetto. Nessuna licenza open source e concessa automaticamente dalla presenza del codice in questa repository.

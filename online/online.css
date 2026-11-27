@@ -1,0 +1,20 @@
+.sync-spinner{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:quadra-spin .8s linear infinite;flex-shrink:0}
+@keyframes quadra-spin{to{transform:rotate(360deg)}}
+.online-welcome{min-height:100svh;display:grid;place-items:center;padding:32px 20px}
+.welcome-card{width:min(100%,720px);border:1px solid var(--border2);background:var(--panel);border-radius:28px;padding:clamp(24px,5vw,52px);box-shadow:var(--shadow);text-align:left}
+.welcome-brand{display:flex;align-items:center;gap:14px;margin-bottom:44px;font-size:29px;font-weight:650}
+.welcome-brand small{display:block;font-size:10px;letter-spacing:.14em;color:var(--sub);margin-top:4px;font-weight:500}
+.welcome-copy h1{margin:12px 0 16px;font-size:clamp(30px,5vw,44px);line-height:1.1}
+.welcome-copy p{font-size:16px;color:var(--sub);line-height:1.7;max-width:510px}
+.welcome-options{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:32px 0;padding:24px 0;border-block:1px solid var(--border)}
+.welcome-options strong{font-size:15px}.welcome-options p{font-size:14px;color:var(--sub);line-height:1.65;margin-top:8px}
+.welcome-actions{display:flex;flex-direction:column;gap:16px}.welcome-actions .btn{min-height:48px;justify-content:center;padding-inline:20px;width:100%}
+.welcome-divider{display:flex;align-items:center;gap:14px;color:var(--sub);font-size:13px;text-align:center}.welcome-divider::before,.welcome-divider::after{content:"";height:1px;flex:1;background:var(--border2)}
+.google-icon{flex-shrink:0}.welcome-actions [data-drive-login]{gap:10px}
+[data-folder-error][hidden],[data-folder-error]:empty{display:none!important}
+.quadra-dialog{z-index:10000}.quadra-dialog [hidden]{display:none!important}.quadra-dialog [data-dialog-message]{white-space:pre-line;margin-bottom:20px}
+.welcome-note{font-size:13px;color:var(--sub);margin-top:20px;line-height:1.6}.welcome-error{color:var(--rose);font-size:14px;line-height:1.6;margin-top:12px}
+.local-folder-card{margin-bottom:20px}.local-folder-card p{color:var(--sub);line-height:1.6;margin:12px 0}
+.iphone-backup-reminder{border:1px solid var(--border2);background:var(--panel);border-radius:16px;padding:18px;margin:16px 0}.iphone-backup-reminder p{font-size:14px;color:var(--sub);line-height:1.5;margin:8px 0 14px}
+@media(max-width:520px){.welcome-options{grid-template-columns:1fr;gap:20px}.welcome-actions{flex-direction:column}.welcome-actions .btn{width:100%}.welcome-brand{margin-bottom:30px}.welcome-card{border-radius:22px}}
+@media(prefers-reduced-motion:reduce){.sync-spinner{animation:none}}

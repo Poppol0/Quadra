@@ -1,0 +1,15 @@
+{
+  "name": "quadra-online",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.4",
+    "jsdom": "26.1.0"
+  }
+}
