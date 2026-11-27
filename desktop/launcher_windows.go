@@ -3,7 +3,10 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"strings"
+	"time"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -72,4 +75,30 @@ func lockDirectory(path string) (func(), error) {
 		return nil, errors.New("archivio già in uso")
 	}
 	return func() { _ = f.Close() }, nil
+}
+
+func folderPickerAvailable() bool { return true }
+
+// Fixed PowerShell program; no user-controlled path is interpolated as code.
+func pickFolder(ctx context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer cancel()
+	script := `$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+Add-Type -AssemblyName System.Windows.Forms
+$d = New-Object System.Windows.Forms.FolderBrowserDialog
+$d.Description = 'Seleziona la cartella per Quadra'
+$d.ShowNewFolderButton = $true
+$owner = New-Object System.Windows.Forms.Form
+$owner.TopMost = $true
+try {
+  if ($d.ShowDialog($owner) -eq [System.Windows.Forms.DialogResult]::OK) {
+    [Console]::Write($d.SelectedPath)
+  }
+} finally { $d.Dispose(); $owner.Dispose() }`
+	cmd := exec.CommandContext(ctx, "powershell.exe", "-NoProfile", "-NonInteractive", "-STA", "-Command", script)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
+	out, err := cmd.Output()
+	if err != nil { return "", errors.New("selettore cartella non disponibile; inserisci il percorso manualmente") }
+	return strings.TrimSpace(string(out)), nil
 }
