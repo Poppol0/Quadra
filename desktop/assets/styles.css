@@ -377,3 +377,5 @@ body.midnight .settings-block h3::before{background:#FF7A1A}
 .storage-path-row input{flex:1 1 160px;min-width:0}
 .storage-path-row button{flex-shrink:0}
 .storage-preferences .btn{justify-self:start}
+
+@media(max-width:900px){.grid.cols-2:has(#restore-file){grid-template-columns:1fr}}
