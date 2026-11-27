@@ -51,3 +51,7 @@ Prima di qualunque migrazione: fai un backup completo ZIP, conserva una copia lo
 Base di sviluppo unificata di Quadra Desktop e installer Windows. L'eseguibile generato va provato su un PC Windows reale; la semplice cross-compilazione non costituisce un collaudo dell'installazione.
 
 Tutti i diritti riservati al titolare del progetto. Nessuna licenza open source e concessa automaticamente dalla presenza del codice in questa repository.
+
+### Cartelle dati e backup
+
+In Impostazioni → Dove sono i dati puoi indicare la cartella dell'archivio e una destinazione separata per i backup automatici e le copie di sicurezza. Su Windows il pulsante Scegli apre il selettore nativo; negli altri ambienti si inserisce il percorso assoluto. I percorsi si applicano al riavvio. Il cambio di archivio crea prima una copia ZIP nella cartella backup attiva e non sposta o elimina i dati precedenti: ripristina la copia ZIP nel nuovo archivio se vuoi trasferire lo storico. Le esportazioni scaricate dal browser seguono le preferenze del browser. La destinazione dei backup personalizzata contiene una sottocartella distinta per ogni archivio.
