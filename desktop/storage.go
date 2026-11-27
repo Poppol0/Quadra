@@ -43,6 +43,7 @@ func appDataDir() string {
 			DataDir string `json:"data_dir"`
 		}
 		if json.Unmarshal(b, &v) == nil && v.DataDir != "" {
+			if filepath.IsAbs(v.DataDir) { return v.DataDir }
 			return os.ExpandEnv(v.DataDir)
 		}
 	}
